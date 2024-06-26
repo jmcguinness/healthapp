@@ -1,4 +1,4 @@
-import { Box, Flex, Card, CardHeader, Container, Heading, Stat, StatNumber, StatGroup, StatLabel, StatHelpText, StatArrow, Spacer } from '@chakra-ui/react'
+import { Card, CardHeader, Container, Stat, StatNumber, StatGroup, StatLabel, StatHelpText, StatArrow } from '@chakra-ui/react'
 
 function LiftingDashboard () {
 

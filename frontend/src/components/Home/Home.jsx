@@ -1,4 +1,4 @@
-import { Box, Flex, Container, Heading, Card, CardHeader, CardBody, CardFooter } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import NewWorkout from './NewWorkout'
 import LiftingDashboard from './LiftingDashboard'
 import RunningDashboard from './RunningDashboard'
