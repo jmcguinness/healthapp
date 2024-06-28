@@ -3,7 +3,7 @@ import { Box, Text, Flex, Link, Spacer, Container } from '@chakra-ui/react'
 function Footer () {
 
     return (
-        <Box w='100%' h='225px' boxShadow='lg' bgGradient='linear-gradient(to right, #141e30, #243b55)'>
+        <Box className='footer' w='100%' h='225px' boxShadow='lg' bgGradient='linear-gradient(to right, #141e30, #243b55)' overflow='auto'>
 
             <Flex align='center' justify='center'>
                 <Container mt='65px'>

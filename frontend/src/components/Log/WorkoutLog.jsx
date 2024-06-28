@@ -4,12 +4,24 @@ import { Card, SimpleGrid, CardBody, CardHeader, Heading, Text, Center } from '@
 
 function WorkoutLog () {
 
-    const [current_token, setCurrentToken] = useState();
+    const [currentToken, setCurrentToken] = useState('d5313e00d314358a773e8804b2f3567e5a38f8a8');
+    const [refreshToken, setRefreshToken] = useState('10278ede8114c2cb3b7d5ac2ee23fa36bf04347d');
+    const clientID = '121616'
+    const clientSecret = 'c47643840109957442fd14d008ed1197355ee2e1'
     const [request, setRequest] = useState("Not Recieved");
-    const [activityID, setActivityID] = useState("");
-    const [newActivityDetails, setNewActivityDetails] = useState();
-
-    const current_time = Date.now
+    const [activityId, setActivityId] = useState();
+    const [activityName, setAcivityName] = useState();
+    const [startDate, setStartDate] = useState();
+    const [sportType, setSportType] = useState();
+    const [description, setDescription] = useState();
+    const [distance, setDistance] = useState();
+    const [movingTime, setMovingTime] = useState();
+    const [averageSpeed, setAverageSpeed] = useState();
+    const [maxSpeed, setMaxSpeed] = useState();
+    const [workoutData, setWorkoutData] = useState();
+    
+    const currentTime = Date.now
+    const [tokenExpiration, setTokenExpiration] = useState();
 
     const emjoi = [
         {
@@ -22,48 +34,72 @@ function WorkoutLog () {
 
     const workoutDetails = [
         {
-            "workoutType": "Weight Training",
-            "workoutDate": "06/22/2024",
-            "workoutDetails": "Bench Press"
-        },
-        {
-            "workoutType": "Run",
-            "workoutDate": "06/23/2024",
-            "workoutDetails": "4 mile run"
-        },
-        {
-            "workoutType": "Run",
-            "workoutDate": "06/23/2024",
-            "workoutDetails": "4 mile run"
-        },
+            "activityId": 106942755,
+            "activityName": "Morning Run",
+            "startDate": "2024-06-16T10:47:23Z",
+            "sportType": "Run",
+            "description": "Run",
+            "distance": "6438.0",
+            "movingTime": "2342",
+            "averageSpeed": "2.749",
+            "maxSpeed": "5.494",
+        }
     ]
 
-    const refreshToken = async () => {
+    const postWorkoutDetails = async () => {
 
-        const request_token = await fetch("https://www.strava.com/oauth/token?client_id=121616&client_secret=c47643840109957442fd14d008ed1197355ee2e1&grant_type=refresh_token&refresh_token=6de52c92a33931d1c5373e74d499cb36fed9e67f&scope=activity:read_all", requestOptionsPost)
-        const request_token_data = await request_token.json()
-        setCurrentToken(request_token_data.access_token)
+        console.log(workoutDetails)
 
+        axios({
+            method: 'post',
+            url: 'http://127.0.0.1:8000/api/workoutLog',
+            data: workoutDetails[0],
+        }).then((response) => {
+            console.log(response.data)
+        })
+    }
+
+    const pageLoad = () => {
+        activityRequest();
+    }
+
+    const getWorkoutDetails = async () => {
+
+        axios({
+            method: 'get',
+            url: 'http://127.0.0.1:8000/api/workoutLog'
+        }).then((response) => {
+            setWorkoutData(response.data)
+            console.log(workoutData)
+        })
+    }
+
+    const getNewToken = () => {
+
+        axios({
+            method: 'post',
+            url: `https://www.strava.com/oauth/token?client_id=${clientID}&client_secret=${clientSecret}&grant_type=refresh_token&refresh_token=${refreshToken}&scope=activity:read_all`
+        }).then((response) => {
+            console.log(response)
+        })
     }
 
     const activityRequest = async () => {
          
-        axios({
-            method: 'get',
-            url: "https://www.strava.com/api/v3/athlete/activities?access_token=999d8613243f5f0f350682d04de4673ab4bcbd73",
-        }).then((response) => {
-            console.log(response)
-            setActivityID(response.data[4].id)
-            setRequest("Received")
-        }).then(activityDetails()
-        ).catch((error) => {
-            console.log(error)
-            refreshToken();
-        })
- 
+            axios({
+                method: 'get',
+                url: `https://www.strava.com/api/v3/athlete/activities?access_token=${currentToken}`,
+            }).then((response) => {
+                console.log(response)
+                setActivityId(response.data[0].id)
+                console.log(activityId)
+                setRequest("Received")
+            }).catch((error) => {
+                console.log(error)
+            })
     }
 
-    const activityDetails = async () => {
+    {/*const activityDetails = async () => {
 
         await axios({
             method: 'get',
@@ -86,22 +122,31 @@ function WorkoutLog () {
 
     useEffect(() => { 
         activityRequest();
+    },[]) */}
+
+    {/*postWorkoutDetails()*/}
+
+    useEffect(() => { 
+        pageLoad();
     },[])
+
 
     return (
             <Center>
             <SimpleGrid columns={2} p={5} m='25px'>
                 {workoutDetails.map((workout) => (
-                    <Card key={workout} h='800px' w='700px'  m='25px' align='center' justify='center' borderStyle='solid' borderWidth='4px' borderColor='#1b305b' bgColor='#f4f6fa'>
+                    <Card key={workout} h='800px' w='700px'  m='50px' align='center' justify='center' borderStyle='solid' borderWidth='4px' borderColor='#1b305b' bgColor='#f4f6fa'>
                         <CardHeader mt='25px'>
-                        <Heading fontSize='60px' color='#1b305b'> {workout.workoutType}</Heading>
+                        <Heading fontSize='60px' color='#1b305b'> {workout.activityName}</Heading>
                         </CardHeader>
                         <CardBody>
                             <Text fontSize='50px' mb='25px'>🏋️</Text>
                             <Text fontSize='35px' fontWeight='bold' color='#1b305b'>Date</Text>
-                            <Text fontSize='30px' mb='25px'>{workout.workoutDate}</Text>
+                            <Text fontSize='30px' mb='25px'>{workout.startDate}</Text>
+                            <Text fontSize='35px' fontWeight='bold' color='#1b305b'>Workout Type</Text>
+                            <Text fontSize='30px' mb='25px'>{workout.sportType}</Text>
                             <Text fontSize='35px' fontWeight='bold' color='#1b305b'>Workout Details</Text>
-                            <Text fontSize='30px' mb='25px'>{workout.workoutDetails}</Text>
+                            <Text fontSize='30px' mb='25px'>{workout.description}</Text>
                         </CardBody>
                     </Card>
                 ))}

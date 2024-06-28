@@ -29,6 +29,16 @@ function NewWorkout () {
         setLiftSelected(false)
     }
 
+    const handleBackNewWorkout = () => {
+        setNewWorkout(false)
+    }
+
+    const handleBackWorkoutType = () => {
+        setTypeSelected(false)
+        setLiftSelected(false)
+        setRunSelected(false)
+    }
+
     if (newWorkout == false) {
         return (
             <Card h='1000px' w='750px' boxShadow='lg' borderStyle='solid' borderWidth='5px' borderColor='#c9def7' bgColor='white'>
@@ -55,7 +65,7 @@ function NewWorkout () {
         return (
             <Card h='1000px' w='750px' boxShadow='lg' borderStyle='solid' borderWidth='5px' borderColor='#c9def7' bgColor='white'>
                 <Container mt='75px'>
-                    <Button h='75px' w='125px' fontSize='30px' borderStyle='solid' borderWidth='2px' borderColor='blue.800' color='blue.800'>Back</Button>
+                    <Button h='75px' w='125px' fontSize='30px' borderStyle='solid' borderWidth='2px' borderColor='blue.800' color='blue.800' onClick={handleBackNewWorkout}>Back</Button>
                 </Container>    
                 <CardHeader fontSize='75px' color='blue.800' fontWeight='bold' mt='25px' textShadow='3px 2px 2px #54D3B2'>Next Workout</CardHeader>
                 <CardHeader fontSize='35px' mb='25px' color='blue.800'>Please select the workout type</CardHeader>
@@ -75,12 +85,12 @@ function NewWorkout () {
         return (
             <Card h='1000px' w='750px' boxShadow='lg' borderStyle='solid' borderWidth='5px' borderColor='#c9def7' bgColor='white'>
                 <Container mt='75px'>
-                    <Button h='75px' w='125px' fontSize='30px' borderStyle='solid' borderWidth='2px' borderColor='blue.800' color='blue.800'>Back</Button>
+                    <Button h='75px' w='125px' fontSize='30px' borderStyle='solid' borderWidth='2px' borderColor='blue.800' color='blue.800' onClick={handleBackWorkoutType}>Back</Button>
                 </Container> 
                 <CardHeader fontSize='75px' color='blue.800' fontWeight='bold' mt='25px' textShadow='3px 2px 2px #54D3B2'>Next Workout</CardHeader>
                 <CardHeader fontSize='35px' mb='25px' color='blue.800'>Please provide the run details</CardHeader>
                 <Container>
-                    <Input variant='outline' mb='75px' h='250px' outlineColor='black'></Input>
+                    <Input variant='outline' mb='75px' h='250px' outlineColor='black' fontSize='25px' align='center' justify='center'></Input>
                 </Container>
                 <Container>
                     <Button h='90px' w='180px' mr='8px' color='blue.800' bgColor='#c9def7' borderWidth='1px' borderColor='blue.800' fontSize='35px' fontWeight='bold' mt='15px'
@@ -94,7 +104,7 @@ function NewWorkout () {
         return (
             <Card h='1000px' w='750px' boxShadow='lg' borderStyle='solid' borderWidth='5px' borderColor='#c9def7' bgColor='white'>
                 <Container mt='75px'>
-                    <Button h='75px' w='125px' fontSize='30px' borderStyle='solid' borderWidth='2px' borderColor='blue.800' color='blue.800'>Back</Button>
+                    <Button h='75px' w='125px' fontSize='30px' borderStyle='solid' borderWidth='2px' borderColor='blue.800' color='blue.800' onClick={handleBackWorkoutType}>Back</Button>
                 </Container> 
                 <CardHeader fontSize='75px' color='blue.800' fontWeight='bold' textShadow='3px 2px 2px #54D3B2'>Next Workout</CardHeader>
                 <CardHeader fontSize='35px' mb='25px' color='blue.800'>Please provide the lift details</CardHeader>
