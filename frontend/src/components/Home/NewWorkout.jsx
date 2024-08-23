@@ -1,4 +1,4 @@
-import { Container, Card, CardHeader, Button, Text, Input } from '@chakra-ui/react'
+import { Container, Card, CardHeader, Button, Text, Input, FormControl } from '@chakra-ui/react'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 
@@ -9,6 +9,7 @@ function NewWorkout () {
     const [typeSelected, setTypeSelected] = useState(false)
     const [runSelected, setRunSelected] = useState(false)
     const [liftSelected, setLiftSelected] = useState(false)
+    const [received, setReceived] = useState(true)
     
     {/* Form Variables */}
     const [workoutSelected, setWorkoutSelected] = useState('')
@@ -47,6 +48,7 @@ function NewWorkout () {
 
     const handleNewWorkout = () => {
         setNewWorkout(true)
+        setReceived(false)
     }
 
     const handleRun = () => {
@@ -100,7 +102,6 @@ function NewWorkout () {
             setRenderLift5Details(response.data[response.data.length-1].lift5Details)
             setRenderLift6(response.data[response.data.length-1].lift6)
             setRenderLift6Details(response.data[response.data.length-1].lift6Details)
-
         })
     }
 
@@ -140,25 +141,25 @@ function NewWorkout () {
         pageLoad();
     }, [])
 
-    if (newWorkout == false & renderWorkoutSelected == 'Run') {
+    if (newWorkout == false & renderWorkoutSelected == 'Run' & received == true) {
         pageLoad();
         return (
-            <Card h='1000px' w='750px' boxShadow='lg' borderStyle='solid' borderWidth='5px' borderColor='#c9def7' bgColor='white'>
-                <CardHeader fontSize='75px' color='blue.800' fontWeight='bold' mt='100px' textShadow='3px 2px 2px #54D3B2'>Next Workout</CardHeader>
-                <CardHeader fontSize='35px' color='blue.800' fontWeight='bold'>Upcoming workout details</CardHeader>
+            <Card h='1000px' w='750px' boxShadow='lg' borderStyle='solid' borderWidth='5px' borderColor='#c9def7' bgGradient='linear-gradient(to right, #141e30, #243b55)'>
+                <CardHeader fontSize='75px'  color='white' fontWeight='bold' mt='100px' textShadow='3px 2px 2px #54D3B2'>Next Workout</CardHeader>
+                <CardHeader fontSize='35px' color='#c9def7' fontWeight='bold'>Upcoming workout details</CardHeader>
                 <CardHeader fontSize='40px' mb='25px' color='#54D3B2' fontWeight='bold'>{renderWorkoutSelected}</CardHeader>
                 <Container mb='75px' h='250px'>
                     <Text fontSize='27.5px' color='blue.800'>{renderRunDetails}</Text>
                 </Container>
                 <Container>
-                    <Button h='100px' w='260px' mr='8px' bgColor='#c9def7' color='blue.800' fontSize='35px' fontWeight='bold' variant='outline' borderWidth='1px' borderColor='blue.800'
+                    <Button  backgroundColor='#54D3B2' h='100px' w='250px' color='#243b55' fontSize='35px' fontFamily='Roboto'  variant='outline' borderWidth='1px' borderColor='white'
                     onClick={handleNewWorkout}>
                         New Workout
                     </Button>
                 </Container>
             </Card>
         )
-    } else if (newWorkout == false & renderWorkoutSelected == 'Lift') {
+    } else if (newWorkout == false & renderWorkoutSelected == 'Lift' & received == true) {
         return (
             <Card h='1000px' w='750px' boxShadow='lg' borderStyle='solid' borderWidth='5px' borderColor='#c9def7' bgColor='white'>
                 <CardHeader fontSize='75px' color='blue.800' fontWeight='bold' mt='100px' textShadow='3px 2px 2px #54D3B2'>Next Workout</CardHeader>
@@ -209,7 +210,9 @@ function NewWorkout () {
                 <CardHeader fontSize='75px' color='blue.800' fontWeight='bold' mt='25px' textShadow='3px 2px 2px #54D3B2'>Next Workout</CardHeader>
                 <CardHeader fontSize='35px' mb='25px' color='blue.800'>Please provide the run details</CardHeader>
                 <Container>
+                    <FormControl isRequired>
                     <Input variant='outline' mb='75px' h='250px' outlineColor='black' fontSize='25px' align='center' justify='center' onChange={(e) => setRunDetails(e.target.value)}></Input>
+                    </FormControl>
                 </Container>
                 <Container>
                     <Button h='90px' w='180px' mr='8px' color='blue.800' bgColor='#c9def7' borderWidth='1px' borderColor='blue.800' fontSize='35px' fontWeight='bold' mt='15px'

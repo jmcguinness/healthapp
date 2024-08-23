@@ -28,3 +28,10 @@ class NewWorkout(models.Model):
     lift5Details = models.CharField(max_length=100, null=True, blank=True)
     lift6 = models.CharField(max_length=25, null=True, blank=True)
     lift6Details = models.CharField(max_length=100, null=True, blank=True)
+
+class LiftStats(models.Model):
+    updateDate = models.DateTimeField(auto_now_add=True)
+    bench = models.FloatField(null=False, blank=False)
+    press =  models.FloatField(null=False, blank=False)
+    squat =  models.FloatField(null=False, blank=False)
+    deadlift =  models.FloatField(null=False, blank=False)

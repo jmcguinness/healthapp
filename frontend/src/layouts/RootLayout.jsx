@@ -8,9 +8,6 @@ function RootLayout() {
 
         <>
         <div className="app">
-            <div>
-                <Header />
-            </div>
             <div className="body">
                 <Outlet />
             </div>

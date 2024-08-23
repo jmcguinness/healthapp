@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, SimpleGrid, CardBody, CardHeader, Heading, Text, Center } from '@chakra-ui/react'
+import Header from '../Header'
 
 function WorkoutLog () {
 
@@ -10,7 +11,7 @@ function WorkoutLog () {
     const clientSecret = 'c47643840109957442fd14d008ed1197355ee2e1'
     const [request, setRequest] = useState("Not Recieved");
     const [activityId, setActivityId] = useState();
-    const [activityName, setAcivityName] = useState();
+    const [activityName, setActivityName] = useState();
     const [startDate, setStartDate] = useState();
     const [sportType, setSportType] = useState();
     const [description, setDescription] = useState();
@@ -19,16 +20,6 @@ function WorkoutLog () {
     const [averageSpeed, setAverageSpeed] = useState();
     const [maxSpeed, setMaxSpeed] = useState();
     const [workoutData, setWorkoutData] = useState();
-    const [emoji, setEmoji] = useState()
-
-    const emojiChange = () => {
-
-        if (workoutData.sportType == "Run") {
-            setEmoji("🏃")
-        } else if (workoutData.sportType == "WeightTraining") {
-            setEmoji("🏋️‍♂️")
-        }
-    }
 
     const currentTime = Date.now()
     const [tokenExpiration, setTokenExpiration] = useState(0);
@@ -64,7 +55,9 @@ function WorkoutLog () {
             method: 'post',
             url: `https://www.strava.com/oauth/token?client_id=${clientID}&client_secret=${clientSecret}&grant_type=refresh_token&refresh_token=${refreshToken}&scope=activity:read_all`
         }).then((response) => {
+            console.log(response)
             setCurrentToken(response.data.access_token)
+            console.log(currentToken)
             setRefreshToken(response.data.refresh_token)
             setTokenExpiration(response.data.expires_at)
         }).then(
@@ -90,7 +83,7 @@ function WorkoutLog () {
             console.log(activityId)
         }).catch((error) => {
             console.log(error)
-        })
+        }).then(await activityDetails())
     }
 
     const activityDetails = async () => {
@@ -100,9 +93,9 @@ function WorkoutLog () {
             url: `https://www.strava.com/api/v3/activities/${activityId}?include_all_efforts=""&access_token=${currentToken}`,
         }).then((response) => {
             
-            console.log(response)
-            setStartDateLocal(response.data.start_date_local)
-            setName(response.data.name)
+            console.log(response.data)
+            setStartDate(response.data.start_date)
+            setActivityName(response.data.name)
             setAverageSpeed(response.data.average_speed)
             setDescription(response.data.description)
             setDistance(response.data.distance)
@@ -110,18 +103,30 @@ function WorkoutLog () {
             setMovingTime(response.data.moving_time)
             setMaxSpeed(response.data.max_speed)
  
-        }).then(await postStravaData())
+        }).then(await postWorkoutDetails())
 
     } 
 
     const postWorkoutDetails = async () => {
 
-        console.log(workoutDetails[0])
+        let postData = new FormData()
 
-        axios({
+        postData.append('activityId', activityId)
+        postData.append('activityName', activityName)
+        postData.append('startDate', startDate)
+        postData.append('sportType', sportType)
+        postData.append('description', description)
+        postData.append('distance', distance)
+        postData.append('movingTime', movingTime)
+        postData.append('averageSpeed', averageSpeed)
+        postData.append('maxSpeed', maxSpeed)
+
+        console.log(postData)
+
+        await axios({
             method: 'post',
             url: 'http://127.0.0.1:8000/api/workoutLog',
-            data: workoutDetails[0],
+            data: postData,
         }).then((response) => {
             console.log(response.data)
         })
@@ -152,32 +157,35 @@ function WorkoutLog () {
 
     if (request == "Received") {
         return (
+            <>
+                <div><Header /></div>
                 <Center>
                 <SimpleGrid columns={2} p={5} m='25px'>
                     {workoutData.map((workout) => (
-                        <Card key={workout} h='1000px' w='850px'  m='50px' align='center' justify='center' borderStyle='solid' borderWidth='4px' borderColor='#1b305b' bgColor='#f4f6fa'>
+                        <Card key={workout} h='1000px' w='850px'  m='50px' align='center' justify='center' borderStyle='solid' borderWidth='4px' borderColor='#c9def7' bgGradient='linear-gradient(to right, #141e30, #243b55)'>
                             <CardHeader mt='25px'>
-                            <Heading fontSize='60px' color='#1b305b'> {workout.activityName}</Heading>
+                            <Heading fontSize='60px' color='#c9def7'> {workout.activityName}</Heading>
                             </CardHeader>
-                            <CardBody>
+                            <CardBody ml='150px' mr='150px'>
                                 <Text fontSize='50px' mb='25px'>{workout.sportType=="Run" ? ("🏃") : ("🏋️‍♂️")}</Text>
-                                <Text fontSize='35px' fontWeight='bold' color='#1b305b'>Date</Text>
-                                <Text fontSize='30px' mb='25px'>{workout.startDate}</Text>
-                                <Text fontSize='35px' fontWeight='bold' color='#1b305b'>Workout Type</Text>
-                                <Text fontSize='30px' mb='25px'>{workout.sportType}</Text>
-                                <Text fontSize='35px' fontWeight='bold' color='#1b305b'>{workout.sportType=="Run" ? ("Distance") : ("Description")}</Text>
-                                <Text fontSize='30px' mb='25px'>{workout.sportType=="Run" ? (`${workout.distance}`) : (`${workout.description}`)}</Text>
-                                <Text fontSize='35px' fontWeight='bold' color='#1b305b'>{workout.sportType=="Run" ? ("Elapsed Time") : ("")}</Text>
-                                <Text fontSize='30px' mb='25px'>{workout.sportType=="Run" ? (`${workout.movingTime}`) : ("")}</Text>
-                                <Text fontSize='35px' fontWeight='bold' color='#1b305b'>{workout.sportType=="Run" ? ("Max Speed") : ("")}</Text>
-                                <Text fontSize='30px' mb='25px'>{workout.sportType=="Run" ? (`${workout.maxSpeed}`) : ("")}</Text>
-                                <Text fontSize='35px' fontWeight='bold' color='#1b305b'>{workout.sportType=="Run" ? ("Average Speed") : ("")}</Text>
-                                <Text fontSize='30px' mb='25px'>{workout.sportType=="Run" ? (`${workout.averageSpeed}`) : ("")}</Text>
+                                <Text fontSize='35px' fontWeight='bold' color='#c9def7'>Date</Text>
+                                <Text fontSize='30px' mb='15px' color='white'>{workout.startDate}</Text>
+                                <Text fontSize='35px' fontWeight='bold' color='#c9def7'>Workout Type</Text>
+                                <Text fontSize='30px' mb='15px' color='white'>{workout.sportType}</Text>
+                                <Text fontSize='35px' fontWeight='bold' color='#c9def7' mr='25px' ml='25px'>{workout.sportType=="Run" ? ("Distance") : ("Description")}</Text>
+                                <Text fontSize='30px' mb='15px' color='white'>{workout.sportType=="Run" ? (`${workout.distance}`) : (`${workout.description}`)}</Text>
+                                <Text fontSize='35px' fontWeight='bold' color='#c9def7'>{workout.sportType=="Run" ? ("Elapsed Time") : ("")}</Text>
+                                <Text fontSize='30px' mb='15px' color='white'>{workout.sportType=="Run" ? (`${workout.movingTime}`) : ("")}</Text>
+                                <Text fontSize='35px' fontWeight='bold' color='#c9def7'>{workout.sportType=="Run" ? ("Max Speed") : ("")}</Text>
+                                <Text fontSize='30px' mb='15px' color='white'>{workout.sportType=="Run" ? (`${workout.maxSpeed}`) : ("")}</Text>
+                                <Text fontSize='35px' fontWeight='bold' color='#c9def7'>{workout.sportType=="Run" ? ("Average Speed") : ("")}</Text>
+                                <Text fontSize='30px' mb='15px' color='white'>{workout.sportType=="Run" ? (`${workout.averageSpeed}`) : ("")}</Text>
                             </CardBody>
                         </Card>
                     ))}
                 </SimpleGrid>
                 </Center>
+            </>
         )
     } 
 } 

@@ -1,0 +1,30 @@
+
+POST http://127.0.0.1:8000/api/login
+Content-Type: application/json
+
+{ "username": "Test1234", "password": "pass1234!" }
+
+###
+
+POST http://127.0.0.1:8000/api/createUser
+Content-Type: application/json
+
+{ "username": "Test1234", "password": "pass1234!", "email": "test1234@test.com" }
+
+###
+
+GET http://127.0.0.1:8000/api/testToken
+Content-Type: application/json
+Authorization: token 0f2f21d1e833b542ef8ecff62977551ddaef5eb2
+
+###
+
+POST http://127.0.0.1:8000/api/liftingDashboard
+Content-Type: application/json
+
+{ "bench": 190, "press": 135, "squat": 270, "deadlift": 235 }
+
+###
+
+GET http://127.0.0.1:8000/api/runDashboard
+Content-Type: application/json
