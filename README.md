@@ -21,3 +21,20 @@ This is a fitness app that uses the strava api to load workouts and fitness data
 5. python manage.py runserver
 
 ## App Features
+
+### Cheezy corporate slogans and authentication
+
+![login](https://github.com/user-attachments/assets/d5e54a94-860b-4bbf-a0ee-6fee67010918)
+
+### Workout Log
+![log](https://github.com/user-attachments/assets/809f49a2-c8fe-4c4b-a61d-ef7a0e92ad67)
+
+### Running Dashboard
+![running_dashboard](https://github.com/user-attachments/assets/5b1785b5-d0e2-4d7a-9265-b88d30af1a10)
+
+### Strength Dashboard
+![strength_dashboard](https://github.com/user-attachments/assets/68740313-126b-4913-bb35-99c0a070b0ae)
+
+### Progress Charts
+
+![charts](https://github.com/user-attachments/assets/2cde75aa-bad2-42a8-b0ee-0c1153e5a57d)
