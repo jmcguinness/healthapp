@@ -1,4 +1,4 @@
-import { Text, Box, Flex, Button, Heading, FormControl, FormLabel, Input, Spacer, Link } from '@chakra-ui/react'
+import { Text, Box, Flex, Button, Heading, FormControl, FormLabel, Input, Spacer, Link, CloseButton } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import axios from 'axios';
@@ -10,9 +10,24 @@ function CreateUser () {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
     const [verifyAccount, setVerifyAccount] = useState('Not Verified')
+    const [modal, setModal] = useState('modalFalse')
+    const [modalBody, setModalBody] = useState('modal-body-false')
+    const [overlay, setOverlay] = useState('overlayFalse')
 
     const handleSubmit = () => {
         postNewUser()
+    }
+
+    const openModal = () => {
+        setModal('modalTrue')
+        setOverlay('overlayTrue')
+        setModalBody('modal-body-true')
+    }
+
+    const closeModal = () => {
+        setModal('modalFalse')
+        setOverlay('overlayFalse')
+        setModalBody('modal-body-false')
     }
 
     const postNewUser = async () => {
@@ -23,7 +38,6 @@ function CreateUser () {
         newUser.append('password', password)
         newUser.append('email', email)
 
-        console.log(verifyAccount)
 
         await axios({
             method: 'post',
@@ -32,9 +46,12 @@ function CreateUser () {
         }).then((response) => {
             console.log(response)
             if (response.status == 200) {
-                setVerifyAccount('Verified')
-                console.log(verifyAccount)
+                setVerifyAccount('Verified');
+                console.log(verifyAccount);
             }
+        }).catch((error) => {
+            console.log(error.message)
+            openModal()
         })
     }
 
@@ -54,7 +71,7 @@ function CreateUser () {
                 </Flex>
                 <Box justify='center' align='center' mt='150px'>
                     <Heading color='#c9def7' fontFamily='Roboto' fontSize='65px'>Create your new account</Heading>
-                    <Text color='white' fontSize='35px'>Take a few moments to invest in your health</Text>
+                    <Text color='white' fontSize='35px'>Take  few moments to invest in your health</Text>
                     <Box w="700px" h='900px' Flex align="center" justify='center' mt="65px"  boxShadow='lg' p="25px" bgColor="RGBA(255, 255, 255, 0.36)" borderStyle='solid' borderWidth='2px' borderColor='#54D3B2'>
 
                             <FormControl isRequired mb="40px" w="350px" mt='25px'>
@@ -82,8 +99,18 @@ function CreateUser () {
                             <Spacer />
                             
                             <Link color="#18235F" fontSize='25px' onClick={() => navigate('/login')}>Already have an account?</Link>
+
                     </Box>
                 </Box>
+
+                    <Flex className={overlay}></Flex>
+                    <Box display='flex' justify='center' align='center' className={modal}>
+                        <CloseButton className={modalBody} size='md' bgColor='#243b55' color='white' onClick={closeModal} />
+                        <Heading className={modalBody} justify='center' align='center' color='#243b55' fontSize='25px'>Account Already Created</Heading>
+                        <Spacer className={modalBody} />
+                        <Text className={modalBody} justify='center' align='center'>Please login using the previously created credentials or reset your password bleow</Text>
+                    </Box>
+                   
             </Box>
         )
     } else if (verifyAccount == 'Verified') {

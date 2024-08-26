@@ -2,14 +2,14 @@
 POST http://127.0.0.1:8000/api/login
 Content-Type: application/json
 
-{ "username": "Test1234", "password": "pass1234!" }
+{ "username": "test3", "password": "test3" }
 
 ###
 
 POST http://127.0.0.1:8000/api/createUser
 Content-Type: application/json
 
-{ "username": "Test1234", "password": "pass1234!", "email": "test1234@test.com" }
+{ "username": "Test1dsa", "password": "pass1jhn", "email": "test14@test.com" }
 
 ###
 

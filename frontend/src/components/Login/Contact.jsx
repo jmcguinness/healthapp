@@ -1,4 +1,4 @@
-import { Box, Flex, Button } from '@chakra-ui/react'
+import { Box, Flex, Button, CardBody, Card } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
 
 function Contact () {
@@ -17,6 +17,13 @@ function Contact () {
                     <Button backgroundColor='#54D3B2' h='100px' w='300px' color='#243b55' fontSize='35px' fontFamily='Roboto' onClick={() => navigate('/pricing')}>Pricing</Button>
                     <Button backgroundColor='#54D3B2' h='100px' w='300px' color='#243b55' fontSize='35px' fontFamily='Roboto' onClick={() => navigate('/contact')}>Contact Us</Button>
                 </Flex>
+            </Flex>
+            <Flex>
+                <Card>
+                    <CardBody>
+                        
+                    </CardBody>
+                </Card>
             </Flex>
         </Box>
     )

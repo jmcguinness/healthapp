@@ -6,6 +6,7 @@ class WorkoutLog(models.Model):
     activityId = models.UUIDField(primary_key= True)
     activityName = models.CharField(max_length=40)
     startDate = models.DateTimeField()
+    startDateMonth = models.FloatField(max_length=2, null=True)
     sportType = models.CharField(max_length=25)
     description = models.CharField(max_length=250, null=True, blank=True)
     distance = models.FloatField(null=True, blank=True)

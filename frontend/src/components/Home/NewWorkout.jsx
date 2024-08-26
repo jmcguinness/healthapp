@@ -68,11 +68,13 @@ function NewWorkout () {
         setTypeSelected(false)
         setRunSelected(false)
         setLiftSelected(false)
+        setReceived(true)
         postNewWorkout()
     }
 
     const handleBackNewWorkout = () => {
         setNewWorkout(false)
+        setReceived(true)
     }
 
     const handleBackWorkoutType = () => {
@@ -149,7 +151,7 @@ function NewWorkout () {
                 <CardHeader fontSize='35px' color='#c9def7' fontWeight='bold'>Upcoming workout details</CardHeader>
                 <CardHeader fontSize='40px' mb='25px' color='#54D3B2' fontWeight='bold'>{renderWorkoutSelected}</CardHeader>
                 <Container mb='75px' h='250px'>
-                    <Text fontSize='27.5px' color='blue.800'>{renderRunDetails}</Text>
+                    <Text fontSize='27.5px' color='white'>{renderRunDetails}</Text>
                 </Container>
                 <Container>
                     <Button  backgroundColor='#54D3B2' h='100px' w='250px' color='#243b55' fontSize='35px' fontFamily='Roboto'  variant='outline' borderWidth='1px' borderColor='white'
@@ -161,17 +163,17 @@ function NewWorkout () {
         )
     } else if (newWorkout == false & renderWorkoutSelected == 'Lift' & received == true) {
         return (
-            <Card h='1000px' w='750px' boxShadow='lg' borderStyle='solid' borderWidth='5px' borderColor='#c9def7' bgColor='white'>
-                <CardHeader fontSize='75px' color='blue.800' fontWeight='bold' mt='100px' textShadow='3px 2px 2px #54D3B2'>Next Workout</CardHeader>
-                <CardHeader fontSize='35px' color='blue.800' fontWeight='bold'>Upcoming workout details</CardHeader>
+            <Card h='1000px' w='750px' boxShadow='lg' borderStyle='solid' borderWidth='5px' borderColor='#c9def7' bgColor='linear-gradient(to right, #141e30, #243b55)'>
+                <CardHeader fontSize='75px'  color='white' fontWeight='bold' mt='100px' textShadow='3px 2px 2px #54D3B2'>Next Workout</CardHeader>
+                <CardHeader fontSize='35px' color='#c9def7' fontWeight='bold'>Upcoming workout details</CardHeader>
                 <CardHeader fontSize='40px' mb='25px' color='#54D3B2' fontWeight='bold'>{renderWorkoutSelected}</CardHeader>
                 <Container mb='75px'>
-                    <Text fontSize='27.5px' color='blue.800'>{renderLift1} -- {renderLift1Details}</Text>
-                    <Text fontSize='27.5px' color='blue.800'>{renderLift2} -- {renderLift2Details}</Text>
-                    <Text fontSize='27.5px' color='blue.800'>{renderLift3} -- {renderLift3Details}</Text>
-                    <Text fontSize='27.5px' color='blue.800'>{renderLift4} -- {renderLift4Details}</Text>
-                    <Text fontSize='27.5px' color='blue.800'>{renderLift5} -- {renderLift5Details}</Text>
-                    <Text fontSize='27.5px' color='blue.800'>{renderLift6} -- {renderLift6Details}</Text>
+                    <Text fontSize='27.5px' color='white'>{renderLift1} -- {renderLift1Details}</Text>
+                    <Text fontSize='27.5px' color='white'>{renderLift2} -- {renderLift2Details}</Text>
+                    <Text fontSize='27.5px' color='white'>{renderLift3} -- {renderLift3Details}</Text>
+                    <Text fontSize='27.5px' color='white'>{renderLift4} -- {renderLift4Details}</Text>
+                    <Text fontSize='27.5px' color='white'>{renderLift5} -- {renderLift5Details}</Text>
+                    <Text fontSize='27.5px' color='white'>{renderLift6} -- {renderLift6Details}</Text>
                 </Container>
                 <Container>
                     <Button h='100px' w='260px' mr='8px' bgColor='#c9def7' color='blue.800' fontSize='35px' fontWeight='bold' variant='outline' borderWidth='1px' borderColor='blue.800'

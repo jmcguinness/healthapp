@@ -8,7 +8,7 @@ class WorkoutLogSerializers(serializers.ModelSerializer):
     class Meta:
         model = WorkoutLog
         fields = ['activityId', 'activityName', 'startDate', 'sportType', 'description', 'distance', 
-                  'movingTime', 'maxSpeed', 'averageSpeed']
+                  'movingTime', 'maxSpeed', 'averageSpeed', 'startDateMonth']
         
 
 class NewWorkoutSerializers(serializers.ModelSerializer):

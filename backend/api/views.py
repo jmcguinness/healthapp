@@ -10,8 +10,10 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from datetime import datetime
 
 # Create your views here.
 class Log(APIView):
@@ -25,6 +27,8 @@ class Log(APIView):
             activityId = serializer.data.get('activityId')
             activityName = serializer.data.get('activityName')
             startDate = serializer.data.get('startDate')
+            format_date = datetime.strptime(startDate, "%Y-%m-%dT%H:%M:%S.%fz")
+            startDateMonth = format_date.month
             sportType = serializer.data.get('sportType')
             description = serializer.data.get('description')
             distance = serializer.data.get('distance')
@@ -33,7 +37,7 @@ class Log(APIView):
             averageSpeed = serializer.data.get('averageSpeed')
             newWorkout = WorkoutLog(activityId=activityId, activityName=activityName, startDate=startDate,
                                     sportType=sportType, description=description, distance=distance,
-                                    movingTime=movingTime, maxSpeed=maxSpeed, averageSpeed=averageSpeed)
+                                    movingTime=movingTime, maxSpeed=maxSpeed, averageSpeed=averageSpeed, startDateMonth=startDateMonth)
             newWorkout.save()
             return Response(status=status.HTTP_200_OK)
         else:
@@ -122,12 +126,17 @@ class LiftingStats(APIView):
 
 @api_view(['POST'])
 def login(request):
-    user = get_object_or_404(User, username=request.data['username'])
-    #if not user.check_password(request.data['password']):
-    #return Response({"detail": "Not Found."}, status=status.HTTP_404_NOT_FOUND)
-    token, created = Token.objects.get_or_create(user=user)
-    serializer = UserSerializers(user)
-    return Response({"Token": token.key, "User": serializer.data, "Check": (request.data['password'])})
+    username = request.data['username']
+    password = request.data['password']
+    user = authenticate(request, username=username, password=password)
+
+    if user is not None:
+        return Response(status=status.HTTP_200_OK)
+    else:
+        print(username)
+        print(password)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 def createUser(request):
@@ -137,7 +146,7 @@ def createUser(request):
         user = User.objects.get(username=request.data['username'])
         user.set_password(request.data['password'])
         user.save
-        token = Token.objects.get_or_create(user=user)
+        token, created = Token.objects.get_or_create(user=user)
         return Response({"Token": token.key, "User": serializer.data})
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
