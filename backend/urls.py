@@ -15,10 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from rest_framework.urlpatterns import format_suffix_patterns
-from api.views import Log, upcomingWorkout, RunDashboard, LiftingStats
+from api.views import Log, upcomingWorkout, RunDashboard, LiftingStats, login_user, StravaAuthToken
 from api import views
+from dj_rest_auth.registration.views import RegisterView
+from dj_rest_auth.views import LoginView, LogoutView, UserDetailsView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,9 +28,12 @@ urlpatterns = [
     path('api/newWorkout', upcomingWorkout.as_view()),
     path('api/runDashboard', RunDashboard.as_view()),
     path('api/liftingDashboard', LiftingStats.as_view()),
-    path('api/login', views.login),
-    path('api/createUser', views.createUser),
-    path('api/testToken', views.test_token),
+    path('api/login', views.login_user),
+    path('api/stravaAuth', StravaAuthToken.as_view()),
+    path("api/register/", RegisterView.as_view(), name="rest_register"),
+    path("api/login/", LoginView.as_view(), name="rest_login"),
+    path("api/logout/", LogoutView.as_view(), name="rest_logout"),
+    path("api/user/", UserDetailsView.as_view(), name="rest_user_details"),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

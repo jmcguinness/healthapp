@@ -6,6 +6,7 @@ import Pricing from './components/Login/Pricing';
 import About from './components/Login/About';
 import CreateUser from './components/Login/CreateUser';
 import Contact from './components/Login/Contact';
+import Lifting from './components/Log/Lifting';
 import {Route, RouterProvider, createBrowserRouter, createRoutesFromElements} from "react-router-dom";
 import './App.css'
 import Charts from './components/Charts/Charts';
@@ -20,6 +21,7 @@ const router = createBrowserRouter(
       <Route path='contact' element={<Contact />}></Route>
       <Route path='home' element={<Home />} />
       <Route path='log' element={<WorkoutLog />}></Route>
+      <Route path='lifting' element={<Lifting />}></Route>
       <Route path='charts' element={<Charts />}></Route>
     </Route>
     

@@ -1,9 +1,44 @@
 import { Card, Button, Text, Input, FormControl, Flex, Heading, Box, FormLabel, Spacer, Link, CardBody, Image} from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function Login () {
 
+    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [userAuth, setUserAuth] = useState('Not Authenticated')
     const navigate = useNavigate();
+
+
+    const submit = async () => {
+
+        console.log("submitting")
+        let loginData = new FormData()
+
+        loginData.append('username', username)
+        loginData.append('password', password)
+
+        console.log(loginData)
+
+        await axios({
+            method: 'post',
+            url: 'http://127.0.0.1:8000/api/login/',
+            data: loginData,
+        }).then((response) => {
+            console.log(response.data)
+        })
+    }
+
+
+   {/*const submit = () => {
+        console.log(email)
+        console.log(password)
+    }*/}
+    useEffect(() => { 
+        is_authenticated();
+    },[])
 
     return(
         <Box h='2500px'>
@@ -26,25 +61,34 @@ function Login () {
             <Box justify='center' align='center'>
                 <Heading color='#c9def7' fontFamily='Roboto' fontSize='65px'>Welcome back!</Heading>
                 <Text color='white' fontSize='35px'>Continue your journey today</Text>
-                <Box w="650px" h='650' Flex align="center" justify='center' mt="65px"  boxShadow='lg' p="25px" bgColor="RGBA(255, 255, 255, 0.36)" borderStyle='solid' borderWidth='2px' borderColor='#54D3B2'>
+                <Box w="850px" h='1000px' Flex align="center" justify='center' mt="65px"  boxShadow='lg' p="25px" bgColor="#000014" borderStyle='solid' borderWidth='2px' borderColor='#54D3B2'>
 
-                        <FormControl isRequired mb="40px" w="350px" mt='25px'>
+                        <FormControl isRequired mb="40px" w="350px" mt='65px'>
                         <FormLabel fontSize='30px' color='white' justify='center'>Username</FormLabel>
-                        <Input bgColor="white" type="text" name="title" placeholder="Username" h='55px' mt='10px' fontSize='25px' justify='center' borderStyle='solid' borderWidth='3px' borderColor='#18235F'/>
+                        <Input value={username} onChange={(e) => setUsername(e.target.value)} type='username'  bgColor="white" name="title" placeholder="Username" h='55px' mt='10px' fontSize='25px' justify='center' borderStyle='solid' borderWidth='3px' borderColor='#54D3B2'/>
                         </FormControl>
 
                         <FormControl isRequired mb="40px" w="350px">
                         <FormLabel fontSize='30px' color='white'>Password</FormLabel>
-                        <Input bgColor="white" type="text" name="title" placeholder="Password" h='55px' mt='10px' fontSize='25px' borderStyle='solid' borderWidth='3px' borderColor='#18235F'/>
+                        <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" bgColor="white" name="title" placeholder="Password" h='55px' mt='10px' fontSize='25px' borderStyle='solid' borderWidth='3px' borderColor='#54D3B2'/>
                         </FormControl>
 
-                        <Button mb="20px" mt='20px' type="submit" colorScheme="blue" fontSize='25px' h='75px' w='125px' onClick={() => navigate('/home')}>Login</Button>
+                        <Button mb="20px" mt='20px' type="submit" colorScheme="blue" fontSize='30px' h='100px' w='200px' borderStyle='solid' borderWidth='3px' borderColor='#54D3B2' onClick={submit}>Login</Button>
+
+                        <Spacer />
+
+                        <Link color="white" fontSize='35px'>OR</Link>
+
+                        <Spacer />
+
+                        <Button mb="40px" mt='20px' type="submit" colorScheme="blue" fontSize='25px' h='100px' w='200px' borderStyle='solid' borderWidth='3px' borderColor='#54D3B2' onClick={() => navigate('/home')}>Single Sign-On</Button>
 
                         <Spacer />
                         
-                        <Link color="#18235F" fontSize='25px'>Forgot your password?</Link>
+                        <Link color="#c9def7" fontSize='25px'>Forgot your password?</Link>
                         <Spacer />
-                        <Link color="#18235F" fontSize='25px' onClick={() => navigate('/createUser')}>Create Account</Link>
+                        <Link color="#c9def7" fontSize='25px' onClick={() => navigate('/createUser')}>Create Account</Link>
+                        
                 </Box>
             </Box>
             <Text mt='100px' fontSize='65px' color='#c9def7' ml='450px' mr='450px' justify='center'>Join Physiness today and take control of your health. Dive into your fitness progress and areas of improvement.</Text>

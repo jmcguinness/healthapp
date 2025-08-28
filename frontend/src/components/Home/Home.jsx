@@ -1,7 +1,7 @@
 import { Flex, Heading } from '@chakra-ui/react'
-import NewWorkout from './NewWorkout'
-import LiftingDashboard from './LiftingDashboard'
 import RunningDashboard from './RunningDashboard'
+import Weather from './Weather'
+import Window from './window'
 import Header from '../Header'
 
 function Home() {
@@ -9,13 +9,28 @@ function Home() {
     return (
         <>
         <div><Header /></div>
-        <Flex justify='center' color='white' mt='50px' fontSize='90px'>
+        <Flex justify='center' color='white' fontSize='90px' mt='175px'>
             <Heading fontSize='90px'>Welcome back, Josh</Heading>
         </Flex>
 
-        <Flex h='2500px' justify='center' mt='150px'>
+        <Flex mt='150px' flexDir='column' mb='250px' h='2000px'>
 
-            <Flex mr='50px'>
+            <Flex justify='center'>
+            <Flex mb='125px'>
+                {/*<HomeStats />*/}
+                <Weather />
+                <RunningDashboard/>
+                <Window />
+            </Flex>
+            </Flex>
+
+            <Flex justify='center'>
+                {/*<LiftingDashboard />
+                <NewWorkout />
+                <RunningDashboard />*/}
+            </Flex>
+
+            {/*<Flex mr='50px'>
                 <LiftingDashboard />
             </Flex>
 
@@ -25,7 +40,7 @@ function Home() {
 
             <Flex ml='50px'>
                 <RunningDashboard />
-            </Flex>
+            </Flex>*/}
             
         </Flex>
         </>

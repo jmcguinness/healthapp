@@ -3,19 +3,22 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework import status, generics
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-from api.models import WorkoutLog, NewWorkout, LiftStats
-from api.serializers import WorkoutLogSerializers, NewWorkoutSerializers, UserSerializers, liftStatsSerializer
+from api.models import WorkoutLog, NewWorkout, LiftStats, StravaAuth
+from api.serializers import WorkoutLogSerializers, NewWorkoutSerializers, UserSerializers, liftStatsSerializer, StravaAuthSerializer
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from django.contrib.sessions.models import Session
 from datetime import datetime
+from django.views.decorators.csrf import ensure_csrf_cookie
 
-# Create your views here.
+### Application Views ###
+
 class Log(APIView):
 
     serializer_class = WorkoutLogSerializers
@@ -27,8 +30,8 @@ class Log(APIView):
             activityId = serializer.data.get('activityId')
             activityName = serializer.data.get('activityName')
             startDate = serializer.data.get('startDate')
-            format_date = datetime.strptime(startDate, "%Y-%m-%dT%H:%M:%S.%fz")
-            startDateMonth = format_date.month
+            format_date = datetime.strptime(startDate, "%Y-%m-%dT%H:%M:%SZ")
+            startDateMonth = format_date.strftime("%B, %Y")
             sportType = serializer.data.get('sportType')
             description = serializer.data.get('description')
             distance = serializer.data.get('distance')
@@ -64,27 +67,15 @@ class upcomingWorkout(APIView):
 
     serializer_class = NewWorkoutSerializers
 
+
     def post(self, request, format=None):
 
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             workoutSelected = serializer.data.get('workoutSelected')
             runDetails = serializer.data.get('runDetails') 
-            lift1 = serializer.data.get('lift1')
-            lift1Details = serializer.data.get('lift1Details')
-            lift2 = serializer.data.get('lift2')
-            lift2Details = serializer.data.get('lift2Details')
-            lift3 = serializer.data.get('lift3')
-            lift3Details = serializer.data.get('lift3Details')
-            lift4 = serializer.data.get('lift4')
-            lift4Details = serializer.data.get('lift4Details')
-            lift5 = serializer.data.get('lift5')
-            lift5Details = serializer.data.get('lift5Details')
-            lift6 = serializer.data.get('lift6')
-            lift6Details = serializer.data.get('lift6Details')
-            nextWorkout = NewWorkout(workoutSelected=workoutSelected, runDetails=runDetails, lift1=lift1, lift1Details=lift1Details,
-                                    lift2=lift2, lift2Details=lift2Details, lift3=lift3, lift3Details=lift3Details, lift4=lift4,
-                                    lift4Details=lift4Details, lift5=lift5, lift5Details=lift5Details, lift6=lift6, lift6Details=lift6Details) 
+            liftType = serializer.data.get('liftType')
+            nextWorkout = NewWorkout(workoutSelected=workoutSelected, runDetails=runDetails, liftType=liftType) 
             nextWorkout.save()
             return Response(status=status.HTTP_200_OK)
         else:
@@ -117,41 +108,68 @@ class LiftingStats(APIView):
         
     def get(self, request, format=None):
 
-        updatedStats = LiftStats.objects.all()
+        updatedStats = LiftStats.objects.order_by('-updateDate')
         serializer = liftStatsSerializer(updatedStats, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    
+
+class StravaAuthToken(APIView):
+
+    serializer_class = StravaAuthSerializer
+
+    def post(self, request, format=None):
+
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            userEmail = serializer.data.get('userEmail')
+            accessToken = serializer.data.get('accessToken')
+            refreshToken = serializer.data.get('refreshToken')
+            tokenExpiration = serializer.data.get('tokenExpiration')
+            StravaAuthUpdate = StravaAuth(userEmail=userEmail, accessToken=accessToken, refreshToken=refreshToken, tokenExpiration=tokenExpiration)
+            StravaAuthUpdate.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+    def get(self, request, fromat=None):
+
+        currentToken = StravaAuth.objects.order_by('-requestReceived')
+        serializer = StravaAuthSerializer(currentToken, many=True)
         return JsonResponse(serializer.data, safe=False)
 
 
+### Authentication Views ###
+
+def login_user(request):
+    if request.method == 'POST':
+        username = request.POST.get['username', '']
+        password = request.POST.get['password', '']
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            request.session['username'] = username
+            request.session.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
-def login(request):
-    username = request.data['username']
-    password = request.data['password']
-    user = authenticate(request, username=username, password=password)
+# @api_view(['POST'])
+# def createUser(request):
+#     serializer = UserSerializers(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#         user = User.objects.get(username=request.data['username'])
+#         user.set_password(request.data['password'])
+#         user.save
+#         token, created = Token.objects.get_or_create(user=user)
+#         return Response({"Token": token.key, "User": serializer.data})
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    if user is not None:
-        return Response(status=status.HTTP_200_OK)
-    else:
-        print(username)
-        print(password)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['GET'])
+# @authentication_classes([SessionAuthentication, TokenAuthentication])
+# @permission_classes([IsAuthenticated])
+# def test_token(request):
+#     return Response("passed")
 
-
-@api_view(['POST'])
-def createUser(request):
-    serializer = UserSerializers(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        user = User.objects.get(username=request.data['username'])
-        user.set_password(request.data['password'])
-        user.save
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({"Token": token.key, "User": serializer.data})
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET'])
-@authentication_classes([SessionAuthentication, TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def test_token(request):
-    return Response("passed")

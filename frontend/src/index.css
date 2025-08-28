@@ -151,3 +151,12 @@ button:focus-visible {
   pointer-events: all;
   opacity: 1;
 }  
+
+.leaflet-container {
+  height: 850px;
+  width: 1500px;
+  margin-bottom: 50px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #54D3B2;
+}

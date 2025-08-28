@@ -1,18 +1,20 @@
 import { Text, Box, Flex, Button, Heading, FormControl, FormLabel, Input, Spacer, Link, CloseButton } from '@chakra-ui/react'
-import { useNavigate } from 'react-router-dom'
+import { json, useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import axios from 'axios';
 
 function CreateUser () {
 
     const navigate = useNavigate();
-    const [username, setUserName] = useState('');
-    const [password, setPassword] = useState('');
+    const [password1, setPassword1] = useState('');
+    const [password2, setPassword2] = useState('')
     const [email, setEmail] = useState('');
-    const [verifyAccount, setVerifyAccount] = useState('Not Verified')
-    const [modal, setModal] = useState('modalFalse')
-    const [modalBody, setModalBody] = useState('modal-body-false')
-    const [overlay, setOverlay] = useState('overlayFalse')
+    const [username, setUsername] = useState('');
+    const [verifyAccount, setVerifyAccount] = useState('Not Verified');
+    const [modal, setModal] = useState('modalFalse');
+    const [modalBody, setModalBody] = useState('modal-body-false');
+    const [overlay, setOverlay] = useState('overlayFalse');
+    const [token, setToken] = useState('No Token');
 
     const handleSubmit = () => {
         postNewUser()
@@ -30,7 +32,7 @@ function CreateUser () {
         setModalBody('modal-body-false')
     }
 
-    const postNewUser = async () => {
+    {/*const postNewUser = async () => {
 
         let newUser = new FormData
 
@@ -53,6 +55,25 @@ function CreateUser () {
             console.log(error.message)
             openModal()
         })
+    }*/}
+
+    
+    async function submit () {
+
+        console.log("submitting")
+        console.log(email, username, password1, password2)
+
+        await axios({
+            method: 'post',
+            url: 'http://127.0.0.1:8000/api/register/',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            data: {email: email, username: username, password1: password1, password2: password2}
+        }).then((response) => {
+            console.log(response.data)
+        })
     }
 
     if (verifyAccount == 'Not Verified') {
@@ -72,33 +93,33 @@ function CreateUser () {
                 <Box justify='center' align='center' mt='150px'>
                     <Heading color='#c9def7' fontFamily='Roboto' fontSize='65px'>Create your new account</Heading>
                     <Text color='white' fontSize='35px'>Take  few moments to invest in your health</Text>
-                    <Box w="700px" h='900px' Flex align="center" justify='center' mt="65px"  boxShadow='lg' p="25px" bgColor="RGBA(255, 255, 255, 0.36)" borderStyle='solid' borderWidth='2px' borderColor='#54D3B2'>
+                    <Box w="700px" h='900px' Flex align="center" justify='center' mt="65px"  boxShadow='lg' p="25px" bgColor="#000014" borderStyle='solid' borderWidth='2px' borderColor='#54D3B2'>
+
+                            <FormControl isRequired mb="40px" w="350px" mt='25px'>
+                            <FormLabel fontSize='30px' color='white' justify='center'>Email</FormLabel>
+                            <Input bgColor="white" type="email" name="email" placeholder="Email" h='55px' mt='10px' fontSize='25px' justify='center' onChange={(e) => setEmail(e.target.value)}/>
+                            </FormControl>
 
                             <FormControl isRequired mb="40px" w="350px" mt='25px'>
                             <FormLabel fontSize='30px' color='white' justify='center'>Username</FormLabel>
-                            <Input bgColor="white" type="text" name="title" placeholder="Username" h='55px' mt='10px' fontSize='25px' justify='center' onChange={(e) => setUserName(e.target.value)}/>
+                            <Input bgColor="white" type="username" name="username" placeholder="Username" h='55px' mt='10px' fontSize='25px' justify='center' onChange={(e) => setUsername(e.target.value)}/>
                             </FormControl>
 
                             <FormControl isRequired mb="40px" w="350px">
                             <FormLabel fontSize='30px' color='white'>Password</FormLabel>
-                            <Input bgColor="white" type="text" name="title" placeholder="Password" h='55px' mt='10px' fontSize='25px' onChange={(e) => setPassword(e.target.value)}/>
+                            <Input bgColor="white" type="password" name="password1" placeholder="Password" h='55px' mt='10px' fontSize='25px' onChange={(e) => setPassword1(e.target.value)}/>
                             </FormControl>
 
                             <FormControl isRequired mb="40px" w="350px">
                                 <FormLabel fontSize='30px' color='white'>Confirm Password</FormLabel>
-                                <Input bgColor="white" type="text" name="title" placeholder="Confirm Password" h='55px' mt='10px' fontSize='25px'/>
+                                <Input bgColor="white" type="password" name="password2" placeholder="Confirm Password" h='55px' mt='10px' fontSize='25px' onChange={(e) => setPassword2(e.target.value)}/>
                             </FormControl>
-
-                            <FormControl isRequired mb="40px" w="350px">
-                                <FormLabel fontSize='30px' color='white'>Email Address</FormLabel>
-                                <Input bgColor="white" type="email" name="title" placeholder="Email Address" h='55px' mt='10px' fontSize='25px' onChange={(e) => setEmail(e.target.value)}/>
-                            </FormControl>
-
-                            <Button mb="20px" mt='20px' type="submit" colorScheme="blue" fontSize='25px' h='75px' w='250px' onClick={handleSubmit}>Create Account</Button>
+                            
+                            <Button mb="20px" mt='20px' type="submit" colorScheme="blue" fontSize='25px' h='75px' w='250px' onClick={submit}>Create Account</Button>
 
                             <Spacer />
                             
-                            <Link color="#18235F" fontSize='25px' onClick={() => navigate('/login')}>Already have an account?</Link>
+                            <Link color="#c9def7" fontSize='25px' onClick={() => navigate('/login')}>Already have an account?</Link>
 
                     </Box>
                 </Box>

@@ -1,4 +1,4 @@
-import { Box, Flex, Button, CardBody, Card } from '@chakra-ui/react'
+import { Box, Flex, Card, CardHeader, Container, Heading, Stat, StatNumber, StatGroup, StatLabel, StatHelpText, StatArrow, Spacer, Slider, CardBody, Button, Text } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
 
 function Contact () {
@@ -18,8 +18,14 @@ function Contact () {
                     <Button backgroundColor='#54D3B2' h='100px' w='300px' color='#243b55' fontSize='35px' fontFamily='Roboto' onClick={() => navigate('/contact')}>Contact Us</Button>
                 </Flex>
             </Flex>
-            <Flex>
-                <Card>
+            <Flex justify='center' mt='250px'>
+                <Card h='1500px' w='2500px' borderStyle='solid' borderWidth='5px' borderColor='' bgColor='rgb(24, 112, 200)'>
+
+                    <CardHeader mt='75px' color='white' fontSize='100px' textShadow='3px 2px 2px rgb(22, 6, 86)'>
+                        Contact Us
+                    </CardHeader>
+                        Please do not attempt to contact us, unless you need to update payment. Thank you.
+                        <Text color='white' fontSize='40px' mt='50px'>Billing@physiness.com</Text>
                     <CardBody>
                         
                     </CardBody>
