@@ -11,6 +11,7 @@ This is a fitness app that uses the strava api to load workouts and fitness data
 ![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)
 
 [Strava API](https://developers.strava.com/docs/reference/)
+[Allauth](https://docs.allauth.org/en/latest/)
 
 ## Running the app
 
