@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class WorkoutLog(models.Model):
-    activityId = models.UUIDField(primary_key= True)
+    activityId = models.FloatField(primary_key= True)
     activityName = models.CharField(max_length=40)
     startDate = models.DateField()
     startDateMonth = models.CharField(max_length=25, null=True)
@@ -30,7 +30,8 @@ class LiftStats(models.Model):
 
 class StravaAuth(models.Model):
     requestReceived = models.DateTimeField(auto_now_add=True)
-    userEmail = models.CharField(null=False, blank=False, max_length=250)
+    clientID = models.CharField(max_length=250)
+    clientSecret = models.CharField(max_length=250)
     accessToken = models.CharField(max_length=250)
     refreshToken = models.CharField(max_length=250)
     tokenExpiration = models.IntegerField()

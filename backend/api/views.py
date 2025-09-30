@@ -121,11 +121,12 @@ class StravaAuthToken(APIView):
 
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            userEmail = serializer.data.get('userEmail')
             accessToken = serializer.data.get('accessToken')
             refreshToken = serializer.data.get('refreshToken')
             tokenExpiration = serializer.data.get('tokenExpiration')
-            StravaAuthUpdate = StravaAuth(userEmail=userEmail, accessToken=accessToken, refreshToken=refreshToken, tokenExpiration=tokenExpiration)
+            clientID = serializer.data.get('clientID')
+            clientSecret = serializer.data.get('clientSecret')
+            StravaAuthUpdate = StravaAuth(accessToken=accessToken, refreshToken=refreshToken, tokenExpiration=tokenExpiration, clientID=clientID, clientSecret=clientSecret)
             StravaAuthUpdate.save()
             return Response(status=status.HTTP_200_OK)
         else:
@@ -133,8 +134,8 @@ class StravaAuthToken(APIView):
         
     def get(self, request, fromat=None):
 
-        currentToken = StravaAuth.objects.order_by('-requestReceived')
-        serializer = StravaAuthSerializer(currentToken, many=True)
+        currentToken = StravaAuth.objects.order_by('-requestReceived').first()
+        serializer = StravaAuthSerializer(currentToken)
         return JsonResponse(serializer.data, safe=False)
 
 

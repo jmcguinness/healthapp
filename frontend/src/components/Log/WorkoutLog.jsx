@@ -5,12 +5,11 @@ import Header from '../Header'
 
 function WorkoutLog () {
 
-    const [currentToken, setCurrentToken] = useState('816a97d6259e5ad432e494a9e2a56ae00d9f97de');
+    const [currentToken, setCurrentToken] = useState('152922238965e7740bc2831b65f10f95ffa78893');
     const [currentRefreshToken, setCurrentRefreshToken] = useState();
     const [tokenExpiration, setTokenExpiration] = useState()
-    const clientID = '121616'
-    const clientSecret = 'c47643840109957442fd14d008ed1197355ee2e1'
-    const userEmail = 'josh+testAuth@test.com'
+    const [clientID, setClientID] = useState();
+    const [clientSecret, setClientSecret] = useState();
     const [request, setRequest] = useState("Not Recieved");
     const [activityId, setActivityId] = useState();
     const [activityName, setActivityName] = useState();
@@ -22,58 +21,66 @@ function WorkoutLog () {
     const [averageSpeed, setAverageSpeed] = useState();
     const [maxSpeed, setMaxSpeed] = useState();
     const [workoutData, setWorkoutData] = useState();
+    const [currentWorkoutID, setCurrentWorkoutID] = useState([]);
+    const databaseWorkoutID = []
+    const needActivity = []
+    const needActivityTEST = [15943627199, 15868944206]
 
     const currentTime = Date.now()
 
-    if(currentTime > 1742322574) {
-        console.log("still active")
-    }
+    {/*Get current token details from database and check if still valid*/}
 
-    const getCurrentToken = () => {
+    const getTokenDetails = () => {
 
         axios({
             method: 'get',
-            url: 'http://127.0.0.1:8000/api/stravaAuth',
+            url: 'http://127.0.0.1:8000/api/stravaAuth'
         }).then((response) => {
-
-            setCurrentToken(response.data[0].accessToken)
-            setCurrentRefreshToken(response.data[0].refreshToken)
-            setTokenExpiration(response.data[0].tokenExpiration)
-
-        })
+            if(response.data.tokenExpiration > currentTime) {
+                refreshToken();
+                console.log('Refreshing token', response.data.tokenExpiration, currentTime)
+            } else {
+                console.log('Valid Token', response.data.tokenExpiration, currentTime)
+            }
+        }
+        )
     }
 
-    const getRefreshToken = async () => {
+    {/*Refresh the token and set variables*/}
+
+    const refreshToken = async () => {
 
         await axios({
             method: 'get',
             url: `https://www.strava.com/oauth/token?client_id=${clientID}&client_secret=${clientSecret}&grant_type=refresh_token&refresh_token=${currentRefreshToken}`
         }).then((response) => {
-            setCurrentToken(response.data.access_token)
-            setCurrentRefreshToken(response.data.refresh_token)
-            setTokenExpiration(response.data.expires_at)
-        }).then(await postNewToken())
-    }
-
-    const postNewToken = async () => {
-
-        let tokenData = new FormData()
-
-        tokenData.append('accessToken', currentToken)
-        tokenData.append('refreshToken', currentRefreshToken)
-        tokenData.append('tokenExpiration', tokenExpiration)
-
-        await axios({
-            method: 'post',
-            url: 'http://127.0.0.1:8000/api/stravaAuth',
-            data: tokenData,
-        }).then((response) => {
             console.log(response)
-        }).then(await activityRequest())
+        })
     }
 
 
-    const activityRequest = async () => {
+    {/*Create array of workout ID's already present in database*/}
+
+    const getCurrentWorkouts = () => {
+
+    axios({
+        method: 'get',
+        url: 'http://127.0.0.1:8000/api/workoutLog'
+    }).then((response) => {
+        console.log(response.data)
+        for(const item in response.data){
+            if(databaseWorkoutID.includes(response.data[item].activityId) === false){
+            databaseWorkoutID.push(response.data[item].activityId)
+            }
+        }
+        console.log('Already Included')
+        console.log(databaseWorkoutID)
+    }).then(activityRequest())
+    }
+
+    {/*Get all Activity ID's from strava and compare to backend array to identify activities that need to be added*/}
+
+    const activityRequest =async () => {
          
         axios({
             method: 'get',
@@ -82,14 +89,41 @@ function WorkoutLog () {
             console.log(response)
             setActivityId(response.data[0].id)
             console.log(activityId)
-        }).catch((error) => {
+
+            for(const item in response.data){
+                if(databaseWorkoutID.includes(response.data[item].id) === false){
+                    needActivity.push(response.data[item].id)
+                }
+            }
+            console.log('Need Activity')
+        }).then(activityDetails()
+
+        ).catch((error) => {
             console.log(error)
         })
+
+        for(const item in needActivity){
+            console.log(item)}
+
+        getWorkoutDetails()
     }
+
+    {/*Loop through needed activity id's and call strava for necessary activity details*/}
 
     const activityDetails = async () => {
 
-        await axios({
+
+        for(const item of needActivity){
+            await axios({
+            method: 'get',
+            url: `https://www.strava.com/api/v3/activities/${item}?include_all_efforts=""&access_token=${currentToken}`,
+        }).then((response) => {
+            
+            console.log(response.data)
+            console.log(`API call for ${item} was successful`)
+        })}
+
+        {/*await axios({
             method: 'get',
             url: `https://www.strava.com/api/v3/activities/${activityId}?include_all_efforts=""&access_token=${currentToken}`,
         }).then((response) => {
@@ -113,13 +147,13 @@ function WorkoutLog () {
                 console.log(i)
             }
  
-        }).then(await postWorkoutDetails())
+        }).then(await postWorkoutDetails())*/}
 
     } 
 
     const postWorkoutDetails = async () => {
 
-        {/*let postData = new FormData()
+        let postData = new FormData()
 
         postData.append('activityId', activityId)
         postData.append('activityName', activityName)
@@ -131,7 +165,7 @@ function WorkoutLog () {
         postData.append('averageSpeed', averageSpeed)
         postData.append('maxSpeed', maxSpeed)
 
-        console.log(postData)*/}
+        console.log(postData)
 
         await axios({
             method: 'post',
@@ -151,21 +185,16 @@ function WorkoutLog () {
         }).then((response) => {
             setWorkoutData(response.data)
             setRequest("Received")
-            console.log(workoutData)
+            
         })
+        
     }
 
+
+
     const pageLoad = () => {
-        getCurrentToken()
-
-        if (currentTime>tokenExpiration) {
-            getRefreshToken();
-        } else {
-            activityRequest()
-        }
-
-        {/*postWorkoutDetails();*/}
-        getWorkoutDetails()
+        getTokenDetails()
+        getCurrentWorkouts()
     }
 
 

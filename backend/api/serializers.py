@@ -36,4 +36,4 @@ class StravaAuthSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = StravaAuth
-        fields = ['userEmail', 'requestReceived', 'accessToken', 'refreshToken', 'tokenExpiration',]
+        fields = ['requestReceived', 'accessToken', 'refreshToken', 'tokenExpiration', 'clientID', 'clientSecret']
