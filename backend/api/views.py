@@ -31,6 +31,7 @@ class Log(APIView):
             activityName = serializer.data.get('activityName')
             startDate = serializer.data.get('startDate')
             format_date = datetime.strptime(startDate, "%Y-%m-%dT%H:%M:%SZ")
+            workoutYear = format_date.year
             startDateMonth = format_date.strftime("%B, %Y")
             sportType = serializer.data.get('sportType')
             description = serializer.data.get('description')
@@ -40,7 +41,8 @@ class Log(APIView):
             averageSpeed = serializer.data.get('averageSpeed')
             newWorkout = WorkoutLog(activityId=activityId, activityName=activityName, startDate=startDate,
                                     sportType=sportType, description=description, distance=distance,
-                                    movingTime=movingTime, maxSpeed=maxSpeed, averageSpeed=averageSpeed, startDateMonth=startDateMonth)
+                                    movingTime=movingTime, maxSpeed=maxSpeed, averageSpeed=averageSpeed, 
+                                    startDateMonth=startDateMonth, workoutYear=workoutYear)
             newWorkout.save()
             return Response(status=status.HTTP_200_OK)
         else:

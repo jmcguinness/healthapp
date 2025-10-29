@@ -21,12 +21,12 @@ class NewWorkout(models.Model):
     liftType = models.CharField(max_length=30, null=True, blank=True)
 
 class LiftStats(models.Model):
-    updateDateTime = models.DateTimeField(auto_now_add=True)
-    updateDate = models.DateField(auto_now_add=True)
-    bench = models.FloatField(null=False, blank=False)
-    press =  models.FloatField(null=False, blank=False)
-    squat =  models.FloatField(null=False, blank=False)
-    deadlift =  models.FloatField(null=False, blank=False)
+    workoutDate = models.DateField(auto_now_add=True)
+    reps = models.FloatField(null=False, blank=False)
+    bench = models.FloatField(null=True, blank=True)
+    press =  models.FloatField(null=True, blank=True)
+    squat =  models.FloatField(null=True, blank=True)
+    deadlift =  models.FloatField(null=True, blank=True)
 
 class StravaAuth(models.Model):
     requestReceived = models.DateTimeField(auto_now_add=True)

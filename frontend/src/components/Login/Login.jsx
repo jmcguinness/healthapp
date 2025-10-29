@@ -36,9 +36,6 @@ function Login () {
         console.log(email)
         console.log(password)
     }*/}
-    useEffect(() => { 
-        is_authenticated();
-    },[])
 
     return(
         <Box h='2500px'>

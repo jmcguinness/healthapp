@@ -5,9 +5,15 @@ import Header from '../Header'
 
 function WorkoutLog () {
 
-    const [currentToken, setCurrentToken] = useState('152922238965e7740bc2831b65f10f95ffa78893');
+    const [currentToken, setCurrentToken] = useState();
     const [currentRefreshToken, setCurrentRefreshToken] = useState();
     const [tokenExpiration, setTokenExpiration] = useState()
+    const [tokenData, setTokenData] = useState(null)
+    const [refreshRequired, setRefreshRequired] = useState()
+    const [refreshCallComplete, setRefreshCallComplete] = useState()
+    const [needActivityCompleted, setNeedActivityCompleted] = useState()
+    const [activityDetailsCompleted, setActivityDetailsCompleted] = useState()
+    const [retreivedCurrentWorkouts, setRetreivedCurrentWorkouts] = useState()
     const [clientID, setClientID] = useState();
     const [clientSecret, setClientSecret] = useState();
     const [request, setRequest] = useState("Not Recieved");
@@ -21,12 +27,18 @@ function WorkoutLog () {
     const [averageSpeed, setAverageSpeed] = useState();
     const [maxSpeed, setMaxSpeed] = useState();
     const [workoutData, setWorkoutData] = useState();
+    const [tokenInfo, setTokenInfo] = useState(null)
     const [currentWorkoutID, setCurrentWorkoutID] = useState([]);
+    const postData = []
+    const [runSum, setRunSum] = useState(0)
     const databaseWorkoutID = []
+    const runningDistance = []
     const needActivity = []
-    const needActivityTEST = [15943627199, 15868944206]
+    const receivedActivityDetails = []
 
     const currentTime = Date.now()
+    const currentYear = new Date().getFullYear()
+
 
     {/*Get current token details from database and check if still valid*/}
 
@@ -36,122 +48,201 @@ function WorkoutLog () {
             method: 'get',
             url: 'http://127.0.0.1:8000/api/stravaAuth'
         }).then((response) => {
+
+            setCurrentToken(response.data.accessToken)
+            setCurrentRefreshToken(response.data.refreshToken)
+            setClientID(response.data.clientID)
+            setClientSecret(response.data.clientSecret)
+            setTokenExpiration(response.data.tokenExpiration)
+            setTokenData(response.data)
+
             if(response.data.tokenExpiration > currentTime) {
-                refreshToken();
-                console.log('Refreshing token', response.data.tokenExpiration, currentTime)
-            } else {
-                console.log('Valid Token', response.data.tokenExpiration, currentTime)
+                getCurrentWorkouts();
+                console.log(response.data.tokenExpiration, currentTime)
             }
-        }
-        )
+
+        }).then()
     }
+    
+    useEffect(() => {
+        getTokenDetails()
+    },[])
+
+    console.log(currentRefreshToken)
 
     {/*Refresh the token and set variables*/}
 
-    const refreshToken = async () => {
+    useEffect(() => { 
+        const refreshToken = async () => {
+            if(tokenExpiration < currentTime) {
 
-        await axios({
-            method: 'get',
-            url: `https://www.strava.com/oauth/token?client_id=${clientID}&client_secret=${clientSecret}&grant_type=refresh_token&refresh_token=${currentRefreshToken}`
-        }).then((response) => {
-            console.log(response)
-        })
-    }
+                await axios({
+                    method: 'post',
+                    url: `https://www.strava.com/oauth/token?client_id=${clientID}&client_secret=${clientSecret}&grant_type=refresh_token&refresh_token=${currentRefreshToken}`
+                }).then((response) => {
+                    setCurrentToken(response.data.access_token)
+                    setCurrentRefreshToken(response.data.refresh_token)
+                    setTokenExpiration(response.data.expires_at)
+                    setRefreshCallComplete('True')
+                }).then()   
+            }
+            }
+        refreshToken()
+    }, [clientID, clientSecret, currentRefreshToken])
 
+    {/*Post new token info to the database*/}
+
+    useEffect(() => { 
+
+        const postTokenInfo = async () => {
+            if(refreshCallComplete =='True'){
+
+                let tokenData = new FormData()
+
+                tokenData.append('accessToken', currentToken)
+                tokenData.append('refreshToken', currentRefreshToken)
+                tokenData.append('tokenExpiration', tokenExpiration)
+                tokenData.append('clientID', clientID)
+                tokenData.append('clientSecret', clientSecret)
+
+                await axios({
+                    method: 'post',
+                    url: 'http://127.0.0.1:8000/api/stravaAuth',
+                    data: tokenData,
+                }).then((response) => {
+                    console.log(response)
+                }).then(getCurrentWorkouts())
+            }
+        }
+        postTokenInfo();
+    }, [refreshCallComplete])
 
     {/*Create array of workout ID's already present in database*/}
 
     const getCurrentWorkouts = () => {
 
-    axios({
-        method: 'get',
-        url: 'http://127.0.0.1:8000/api/workoutLog'
-    }).then((response) => {
-        console.log(response.data)
-        for(const item in response.data){
-            if(databaseWorkoutID.includes(response.data[item].activityId) === false){
-            databaseWorkoutID.push(response.data[item].activityId)
+        axios({
+            method: 'get',
+            url: 'http://127.0.0.1:8000/api/workoutLog'
+        }).then((response) => {
+            console.log(response.data)
+            for(const item in response.data){
+                runningDistance.push(response.data[item].distance)
+                if(databaseWorkoutID.includes(response.data[item].activityId) === false){
+                databaseWorkoutID.push(response.data[item].activityId)
+                }
             }
-        }
-        console.log('Already Included')
-        console.log(databaseWorkoutID)
-    }).then(activityRequest())
+            setRunSum(Math.round((runningDistance.reduce((accumulator, currentValue) => accumulator + currentValue, 0) * 0.000621371) * 100) / 100)
+            console.log('Already Included')
+            console.log(databaseWorkoutID)
+            console.log(runningDistance)
+        }).then(setRetreivedCurrentWorkouts('True'))
     }
+
 
     {/*Get all Activity ID's from strava and compare to backend array to identify activities that need to be added*/}
 
-    const activityRequest =async () => {
-         
-        axios({
-            method: 'get',
-            url: `https://www.strava.com/api/v3/athlete/activities?access_token=${currentToken}`,
-        }).then((response) => {
-            console.log(response)
-            setActivityId(response.data[0].id)
-            console.log(activityId)
+    useEffect(() => { 
+        const activityRequest =async () => {
+            
+            axios({
+                method: 'get',
+                url: `https://www.strava.com/api/v3/athlete/activities?access_token=${currentToken}`,
+            }).then((response) => {
+                console.log(response)
+                setActivityId(response.data[0].id)
+                console.log(activityId)
 
-            for(const item in response.data){
-                if(databaseWorkoutID.includes(response.data[item].id) === false){
-                    needActivity.push(response.data[item].id)
+                if(response.status==200) {
+                    console.log(200)
                 }
-            }
-            console.log('Need Activity')
-        }).then(activityDetails()
+                if(response.status==200) {
+                    for(const item in response.data){
+                        if(databaseWorkoutID.includes(response.data[item].id) === false){
+                            axios({
+                                method: 'get',
+                                url: `https://www.strava.com/api/v3/activities/${response.data[item].id}?include_all_efforts=""&access_token=${currentToken}`,
+                            }).then((response) => {
 
-        ).catch((error) => {
-            console.log(error)
-        })
+                                postData.push(response.data)
 
-        for(const item in needActivity){
-            console.log(item)}
+                            })
 
-        getWorkoutDetails()
-    }
+                        }
+
+                    }
+
+                }
+            }).then((postData) =>{
+                for(const item in postData){
+                    console.log(item)
+                }
+            }).catch((error) => {
+                console.log(error)
+            }).then(
+                
+            ).then()
+
+        }
+        activityRequest();
+    }, [retreivedCurrentWorkouts])
+
+
 
     {/*Loop through needed activity id's and call strava for necessary activity details*/}
 
-    const activityDetails = async () => {
+    useEffect(() => { 
 
+            const postWorkouts = async () => {
 
-        for(const item of needActivity){
-            await axios({
-            method: 'get',
-            url: `https://www.strava.com/api/v3/activities/${item}?include_all_efforts=""&access_token=${currentToken}`,
-        }).then((response) => {
-            
-            console.log(response.data)
-            console.log(`API call for ${item} was successful`)
-        })}
+                for(const i in postData) {
 
-        {/*await axios({
-            method: 'get',
-            url: `https://www.strava.com/api/v3/activities/${activityId}?include_all_efforts=""&access_token=${currentToken}`,
-        }).then((response) => {
-            
-            console.log(response.data)
-            console.log(response.data.splits_standard)
-            setStartDate(response.data.start_date)
-            setActivityName(response.data.name)
-            setAverageSpeed(response.data.average_speed)
-            setDescription(response.data.description)
-            setDistance(response.data.distance)
-            setSportType(response.data.sport_type)
-            setMovingTime(response.data.moving_time)
-            setMaxSpeed(response.data.max_speed)
+                    let newPost = new FormData()
 
-            if(sportType=='WeightTraining') {
-                setSportType("Weight Training")
+                    newPost.append('activityId', i.id)
+                    newPost.append('activityName', i.name)
+                    newPost.append('startDate', i.start_date)
+                    newPost.append('sportType', i.type)
+                    newPost.append('description', i.description)
+                    newPost.append('distance', i.distance)
+                    newPost.append('movingTime', i.moving_time)
+                    newPost.append('averageSpeed', i.average_speed)
+                    newPost.append('maxSpeed', i.max_speed)
+
+                    axios({
+                        method: 'post',
+                        url: 'http://127.0.0.1:8000/api/workoutLog',
+                        data: newPost,
+                    }).then((response) => {
+                        console.log(response.data)
+                    })
+                }
+                setActivityDetailsCompleted('True')
             }
+            
+            postWorkouts()
+    }, [postData])
 
-            for(let i in response.data.splits_standard) {
-                console.log(i)
-            }
- 
-        }).then(await postWorkoutDetails())*/}
+    {/*useEffect(() => { 
+        const activityDetails = async () => {
 
-    } 
+            for(const item of needActivity){
+                await axios({
+                method: 'get',
+                url: `https://www.strava.com/api/v3/activities/${item}?include_all_efforts=""&access_token=${currentToken}`,
+            }).then((response) => {
+                
+                console.log(response.data)
+                receivedActivityDetails.append(response.data)
+                console.log(`API call for ${item} was successful`)
+                console.log(receivedActivityDetails)
+            }).then(getWorkoutDetails())
+            }    
+        }
+        activityDetails()
+    }, [needActivityCompleted])*/}
 
-    const postWorkoutDetails = async () => {
+    {/*const postWorkoutDetails = async () => {
 
         let postData = new FormData()
 
@@ -174,40 +265,45 @@ function WorkoutLog () {
         }).then((response) => {
             console.log(response.data)
         })
-    }
+    }*/}
+
+    useEffect(() => { 
+        if(activityDetailsCompleted=='True') {
+            const getWorkoutDetails = async () => {
+
+                await axios({
+                    method: 'get',
+                    url: 'http://127.0.0.1:8000/api/workoutLog'
+                }).then((response) => {
+                    setWorkoutData(response.data)
+                    console.log(response.data)
+
+                        
+                    setRequest("Received")
+                })
+                
+            }
+        getWorkoutDetails()
+        }
+    }, [activityDetailsCompleted])
 
 
-    const getWorkoutDetails = async () => {
 
-        await axios({
-            method: 'get',
-            url: 'http://127.0.0.1:8000/api/workoutLog'
-        }).then((response) => {
-            setWorkoutData(response.data)
-            setRequest("Received")
-            
-        })
-        
-    }
-
-
-
-    const pageLoad = () => {
+    {/*const pageLoad = () => {
         getTokenDetails()
-        getCurrentWorkouts()
-    }
+    }*/}
 
 
     {/*postWorkoutDetails()*/}
 
-    useEffect(() => { 
+    {/*useEffect(() => { 
         pageLoad();
-    },[])
+    },[])*/}
 
 
 
 
-    if (request == "Received") {
+    if (request == 'Received') {
         return (
             <>
                 <div><Header /></div>
@@ -216,6 +312,14 @@ function WorkoutLog () {
                 </Flex>
                 <Flex justify='center' mt='15px'>
                 <Link fontSize='25px' color='#FC4C02' href='https://developers.strava.com/'>Powered by the Strava API</Link>
+                </Flex>
+                <Flex justify='center' mt='50px'>
+
+                    <Card h='200px' w='400px' bgGradient='linear-gradient(to right, #141e30, #243b55)' borderStyle='solid' borderWidth='2px' borderColor='#c9def7'>
+                        <Text color='#c9def7' fontSize='35px' mt='10px' fontWeight='bold'>Milage This Year</Text>
+                        <Text color='#c9def7' fontSize='75px' >{runSum}</Text>
+                    </Card>
+
                 </Flex>
                 <Center>
                 <SimpleGrid columns={2} p={5} m='25px'>

@@ -1,5 +1,6 @@
 import { Container, Card, CardHeader, Button, Text, Input, FormControl, Flex, CardBody, Link, Image } from '@chakra-ui/react'
 import axios from 'axios'
+import { use } from 'react';
 import { useEffect, useState } from 'react'
 import { LuInfo } from "react-icons/lu"
 
@@ -26,6 +27,9 @@ function Weather () {
     const [currentWeatherPage, setCurrentWeatherPage] = useState('True')
     const [forecastPage, setForecastPage] = useState('False')
     const [weatherImage, setWeatherImage] = useState()
+    const [loadPage, setLoadPage] = useState('False')
+    const [coordReceivedForecast, setCoordReceivedForecast] = useState()
+    const [coordReceivedCurrent, setCoordReceivedCurrent] = useState()
 
     
     const url_weather = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&current=temperature_2m,apparent_temperature,dew_point_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York&forecast_days=1`;
@@ -43,32 +47,33 @@ function Weather () {
         setLat(latitude)
         const longitude = new_coord.results[0].longitude
         setLong(longitude)
-
-        fetchWeather();
-        fetchForecast();
-        
+        setCoordReceivedForecast('True')
+        setCoordReceivedCurrent('True')
         
     }
 
     useEffect(() => {
         coordFetch();
-    }, [])
+    },[])
 
-    const fetchForecast = async () => {
+    useEffect(() => {
+        const fetchForecast = async () => {
 
-        const dataForecast = await fetch(url_weather_forcast);
-        const new_weather_forecast = await dataForecast.json();
-        console.log(new_weather_forecast)
+            const dataForecast = await fetch(url_weather_forcast);
+            const new_weather_forecast = await dataForecast.json();
+            console.log(new_weather_forecast)
 
-        setForecastHigh(new_weather_forecast.daily.temperature_2m_max)
-        setForecastLow(new_weather_forecast.daily.temperature_2m_min)
-        setForecastWeatherCode(new_weather_forecast.daily.weather_code)
-        setForecastDay(new_weather_forecast.daily.time)
+            setForecastHigh(new_weather_forecast.daily.temperature_2m_max)
+            setForecastLow(new_weather_forecast.daily.temperature_2m_min)
+            setForecastWeatherCode(new_weather_forecast.daily.weather_code)
+            setForecastDay(new_weather_forecast.daily.time)
 
-        console.log(forecastHigh)
-        console.log(forecastLow)
+            console.log(forecastHigh)
+            console.log(forecastLow)
 
-    }
+        }
+        fetchForecast();
+    },[coordReceivedForecast])
 
     const addWeatherImage = () => {
 
@@ -83,75 +88,85 @@ function Weather () {
             />
         )
     }
-    
-    const fetchWeather = async () => {
 
-        const data = await fetch(url_weather);
-        const new_weather = await data.json();
-        console.log(new_weather)
+    useEffect(() => {
+        const fetchWeather = async () => {
 
-        
-        setTemp(new_weather.current.temperature_2m) 
-        setFeels(new_weather.current.apparent_temperature)
-        setDewPoint(new_weather.current.dew_point_2m)
-        setSunrise(new_weather.daily.sunrise)
-        setSunset(new_weather.daily.sunset)
-        setHigh(new_weather.daily.temperature_2m_max)
-        setLow(new_weather.daily.temperature_2m_min)
-        setWeatherCode(new_weather.current.weather_code)
+            const data = await fetch(url_weather);
+            const new_weather = await data.json();
+            console.log(new_weather)
 
+            
+            setTemp(new_weather.current.temperature_2m) 
+            setFeels(new_weather.current.apparent_temperature)
+            setDewPoint(new_weather.current.dew_point_2m)
+            setSunrise(new_weather.daily.sunrise)
+            setSunset(new_weather.daily.sunset)
+            setHigh(new_weather.daily.temperature_2m_max)
+            setLow(new_weather.daily.temperature_2m_min)
+            setWeatherCode(new_weather.current.weather_code)
 
-        console.log(message)
-
-        if (new_weather.current.weather_code === 0) {
-            setWeatherCode('Sun')
-        } else if (new_weather.current.weather_code in [1,2,3]) {
-            setWeatherCode('Partly Sunny')
-        } else if (new_weather.current.weather_code in [45, 48]) {
-            setWeatherCode('Hazy')
-        } else if (new_weather.current.weather_code in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82]) {
-            setWeatherCode('Rain')
-        } else if (new_weather.current.weather_code in [95, 96, 99]) {
-            setWeatherCode('Thunder Storm')
-        } else if (new_weather.current.weather_code in [71, 73, 75, 77, 85, 86]) {
-            setWeatherCode('❄️')
-        } else {
-            setWeatherCode('')
-        }
-
-        if (temp >= 100) {
-            setMessage(<Link href="https://www.google.com/search?client=firefox-b-1-d&channel=entpr&q=fun+things+to+do+inside">Have a look</Link>)
-        } else if (dewPoint >= 70) {
-            setMessage("It's a sauna out there")
-        } else if (temp >= 80) {
-            setMessage("Maybe find a treadmill")
-        } else if (temp >= 70) {
-            setMessage("A little warm, but not so bad")
-        } else if (temp >= 50 & temp <70) {
-            setMessage("It's so nice, a run might actually feel good")
-        } else if (temp >= 35 & temp <50) {
-            setMessage("Don't forget your sweater!")
-        } else if (temp < 35) {
-            setMessage("Might want to do some " + <Link href="https://my.clevelandclinic.org/health/diseases/15439-frostbite">reading</Link> )
-        }
+            console.log(new_weather.current.temperature_2m)
 
 
-    }
+            console.log(message)
 
+            if (new_weather.current.weather_code === 0) {
+                setWeatherCode('Sun')
+            } else if (new_weather.current.weather_code in [1,2,3]) {
+                setWeatherCode('Partly Sunny')
+            } else if (new_weather.current.weather_code in [45, 48]) {
+                setWeatherCode('Hazy')
+            } else if (new_weather.current.weather_code in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82]) {
+                setWeatherCode('Rain')
+            } else if (new_weather.current.weather_code in [95, 96, 99]) {
+                setWeatherCode('Thunder Storm')
+            } else if (new_weather.current.weather_code in [71, 73, 75, 77, 85, 86]) {
+                setWeatherCode('❄️')
+            } else {
+                setWeatherCode('')
+            }
+
+            if (temp >= 100) {
+                setMessage(<Link href="https://www.google.com/search?client=firefox-b-1-d&channel=entpr&q=fun+things+to+do+inside">Have a look</Link>)
+            } else if (dewPoint >= 70) {
+                setMessage("It's a sauna out there")
+            } else if (temp >= 80) {
+                setMessage("Maybe find a treadmill")
+            } else if (temp >= 70) {
+                setMessage("A little warm, but not so bad")
+            } else if (temp >= 50 & temp <70) {
+                setMessage("It's so nice, a run might actually feel good")
+            } else if (temp >= 35 & temp <50) {
+                setMessage("Don't forget your sweater!")
+            } else if (temp < 35) {
+                setMessage("Might want to do some " + <Link href="https://my.clevelandclinic.org/health/diseases/15439-frostbite">reading</Link> )
+            }
+
+            setLoadPage('True')
+            console.log(loadPage)
+
+            }
+            fetchWeather();
+    }, [coordReceivedCurrent])
+
+    console.log(loadPage)
 
     {/*const handleToggle = () => {
         setToggle(!toggle)
     }*/}
 
-    const pageLoad = () => {
-        coordFetch()
+    const handleForecast = () => {
+        setForecastPage('True')
     }
 
-    useEffect(() => { 
-        pageLoad();
-    },[])
+    const handleCurrent = () => {
+        setForecastPage('False')
+    }
 
-    if (weatherCode != "False" & message != "False" & currentWeatherPage=='True') {
+
+
+    if (forecastPage=='False' & loadPage=='True') {
         return (
             <Card h='1250px' w='800px' boxShadow='lg' borderStyle='solid' borderWidth='5px' borderColor='' bgColor='rgb(24, 112, 200)'>
                 <>
@@ -187,7 +202,7 @@ function Weather () {
                             <Text color='white' fontSize='40px' mb='5px'>{sunset}</Text>
                         </Flex>
 
-                        <Button mt='50px' backgroundColor='#54D3B2' h='100px' w='250px' color='blue.900' fontSize='40px' fontFamily='Roboto'  variant='outline' borderWidth='1px' borderColor='white'>Forecast</Button>
+                        <Button mt='50px' backgroundColor='#54D3B2' h='100px' w='250px' color='blue.900' fontSize='40px' fontFamily='Roboto'  variant='outline' borderWidth='1px' borderColor='white' onClick={handleForecast}>Forecast</Button>
 
                     </CardBody>
                 </>
@@ -258,14 +273,14 @@ function Weather () {
                                 <Text color='#54D3B2' fontSize='35px' ml='7px'>{forecastLow[4]}</Text>
                             </Flex>
 
-                        <Button mt='50px' backgroundColor='#54D3B2' h='100px' w='250px' color='blue.900' fontSize='40px' fontFamily='Roboto'  variant='outline' borderWidth='1px' borderColor='white'>Today</Button>
+                        <Button mt='50px' backgroundColor='#54D3B2' h='100px' w='250px' color='blue.900' fontSize='40px' fontFamily='Roboto'  variant='outline' borderWidth='1px' borderColor='white' onClick={handleCurrent}>Today</Button>
 
                     </CardBody>
                 </>
             </Card>
         )
 
-    } else {
+    } {/*else {
 
         return (
             <Card h='1250px' w='800px' boxShadow='lg' borderStyle='solid' borderWidth='5px' borderColor='' bgColor='rgb(24, 112, 200)'>
@@ -297,7 +312,7 @@ function Weather () {
 
         )
 
-    }
+    }*/}
 }
 
 export default Weather
